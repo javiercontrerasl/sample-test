@@ -1,6 +1,6 @@
 {
     "name": "sample-test",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Sample test for new code check",
     "main": "index.js",
     "scripts": {

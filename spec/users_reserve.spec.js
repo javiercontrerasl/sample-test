@@ -108,7 +108,7 @@ describe("With student user", function() {
   it("can reserve an event.", function(done) {
     host.api(API).params({
       "token": token,
-      "event_id": 1,
+      "event_id": 4, //event_id: 1 is in the past. So, You should not reserve an event in the past, >= today
       "reserve": true
     }).success(function(data, res) {
       assert.equal(data.code, 200);
@@ -119,12 +119,12 @@ describe("With student user", function() {
     fixtures.create({
       "attends": {
         "user_id": userId,
-        "event_id": 1
+        "event_id": 4 
       }
     }).then(function() {
       host.api(API).params({
         "token": token,
-        "event_id": 1,
+        "event_id": 4,
         "reserve": true
       }).success(function(data, res) {
         assert.equal(data.code, 501);//Already reserved
@@ -136,12 +136,12 @@ describe("With student user", function() {
     fixtures.create({
       "attends": {
         "user_id": userId,
-        "event_id": 1
+        "event_id": 4
       }
     }).then(function() {
       host.api(API).params({
         "token": token,
-        "event_id": 1,
+        "event_id": 4,
         "reserve": false
       }).success(function(data, res) {
         assert.equal(data.code, 200);
@@ -153,10 +153,10 @@ describe("With student user", function() {
   it("can not unreserve not reaserved event.", function(done) {
     host.api(API).params({
       "token": token,
-      "event_id": 1,
+      "event_id": 4,
       "reserve": false
     }).success(function(data, res) {
-      assert.equal(data.code, 502);//Not reserved
+      assert.equal(data.code, 502);//Not reserved //502 Bad Gateway
       done();
     });
   });
