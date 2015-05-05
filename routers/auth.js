@@ -3,14 +3,7 @@
     crypto = require('crypto-js'),
     S = require('string'),
     config = require('../spec/config/config.json'),
-    connection = mysql.createPool({
-        host: config.database.connection.host,
-        user: config.database.connection.user,
-        password: config.database.connection.password,
-        database: config.database.connection.database,
-        port: config.database.connection.port,
-        connectionLimit: config.database.connection.connectionLimit
-    });
+    connection = mysql.createPool(config.database.connection);
 
 connection.getConnection(function (err, conn) {
     if (err) {
@@ -27,7 +20,7 @@ var auth = {
     login: function (req, res) {
         var loginID = req.body.email || '';
         var password = req.body.password || '';
-
+        
         try {
             if (S(loginID).isEmpty() || S(password).isEmpty()) {
                 res.status(406);
@@ -37,7 +30,7 @@ var auth = {
                 });
                 return;
             }
-
+            
             connection.query('SELECT id, name, group_id FROM users WHERE (email =? AND password =?);',
             [loginID, crypto.SHA1(password).toString(crypto.enc.Hex)], function (err, rows) {
                 if (err) {
@@ -79,12 +72,12 @@ var auth = {
 
 function getToken(loginID) {
     var expires = expiresIn(5);
-
+    
     var token = jwt.encode({
         loginID: loginID,
         exp: expires
     }, require('../config/secret')());
-
+    
     return token;
 }
 

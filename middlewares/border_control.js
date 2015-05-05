@@ -2,14 +2,7 @@
     mysql = require('mysql'),
     config = require('../spec/config/config.json'),
     S = require('string'),
-    connection = mysql.createPool({
-        host     : config.database.connection.host,
-        user     : config.database.connection.user,
-        password : config.database.connection.password,
-        database : config.database.connection.database,
-        port     : config.database.connection.port,
-        connectionLimit : config.database.connection.connectionLimit
-    });
+    connection = mysql.createPool(config.database.connection);
 
 connection.getConnection(function (err, conn) {
     if (err) {

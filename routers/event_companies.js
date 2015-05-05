@@ -1,18 +1,9 @@
 ﻿var mysql = require('mysql'),
-    express = require('express'),
-    app = express(),
     moment = require('moment'),
     S = require('string'),
     config = require('../spec/config/config.json'),
     jwt = require('jwt-simple'),
-    connection = mysql.createPool({
-        host     : config.database.connection.host,
-        user     : config.database.connection.user,
-        password : config.database.connection.password,
-        database : config.database.connection.database,
-        port     : config.database.connection.port,
-        connectionLimit : config.database.connection.connectionLimit
-    });
+    connection = mysql.createPool(config.database.connection);
 
 connection.getConnection(function (err, conn) {
     if (err) {
@@ -56,7 +47,8 @@ event_companies = {
                 var passport = jwt.decode(token, require('../config/secret.js')());
                 
                 if (passport) {
-                    connection.query('SELECT events.id, events.name, DATE_FORMAT(events.start_date, \"%Y-%m-%d %T\") AS start_date, COUNT(attends.user_id) AS number_of_attendees FROM events INNER JOIN attends ON events.id = attends.event_id WHERE(events.start_date >= ? AND events.user_id = (SELECT users.id FROM users WHERE (users.email = ?))) GROUP BY events.id, events.name  ORDER BY start_date LIMIT ? OFFSET ?;', 
+                    //connection.query('SELECT events.id, events.name, DATE_FORMAT(events.start_date, \"%Y-%m-%d %T\") AS start_date, COUNT(attends.user_id) AS number_of_attendees FROM events LEFT JOIN attends ON events.id = attends.event_id WHERE(events.start_date >= ? AND events.user_id = (SELECT users.id FROM users WHERE (users.email = ?))) GROUP BY events.id, events.name  ORDER BY start_date LIMIT ? OFFSET ?;', 
+                    connection.query('select events.id, events.name, DATE_FORMAT(events.start_date, \"%Y-%m-%d %T\") as start_date, (SELECT COUNT(attends.user_id) FROM attends where attends.event_id = events.id) as number_of_attendees FROM events WHERE(events.start_date >= ? AND events.user_id = (SELECT users.id FROM users WHERE (users.email = ?))) ORDER BY start_date LIMIT ? OFFSET ?;', 
                         [from, passport.loginID, parseInt(limit), parseInt(offset)], function (err, rows) {
                         if (err) {
                             res.status(500);

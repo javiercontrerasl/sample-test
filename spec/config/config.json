@@ -1,5 +1,5 @@
 {
-    "host": "localhost",
+    "host": "localhost:1338",
     "mysql": {
         "host": "localhost",
         "user": "vagrant",
